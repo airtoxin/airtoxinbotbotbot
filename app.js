@@ -62,6 +62,7 @@ var Bot = ( function () {
 		};
 
 		self.watchFavorite = function ( tweet ) {
+			if ( tweet.getUserScreenName() === self.settings.screen_name ) return;
 			var keywords = nlp.getKeywords( tweet.getFlatText() );
 
 			var isFavorite = _.some( _.map( keywords, function ( keyword ) {
