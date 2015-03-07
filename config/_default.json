@@ -1,0 +1,26 @@
+{
+	"auth": {
+		"consumer_key": "XXXXXXXXXXXXXXXXXXXX",
+		"consumer_secret": "XXXXXXXXXXXXXXXXXXXX",
+		"access_token_key": "XXXXXXXXXXXXXXXXXXXX",
+		"access_token_secret": "XXXXXXXXXXXXXXXXXXXX"
+	},
+	"bot": {
+		"teachers": [], // teachers account
+		"favorite": {
+			"always_favorites": [],
+			"min_time": 500,
+			"max_time": 5000
+		}
+	},
+	"reply": {
+		"min_time": 3000,
+		"max_time": 10000
+	},
+	"markov": {
+		"chain_length": 20
+	},
+	"tweet": {
+		"span": 900000 // 15 min
+	}
+}
