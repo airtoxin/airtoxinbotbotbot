@@ -57,7 +57,7 @@ var Bot = ( function () {
 			if ( !brain.isFavoriteText( tweet.getFlatText() ) ) { return; }
 
 			setTimeout( function () {
-				self.createFavorite( tweet )
+				self.createFavorite( tweet );
 			}, _.random( config.bot.favorite.min_time, config.bot.favorite.max_time ) );
 		};
 
@@ -97,34 +97,34 @@ var Bot = ( function () {
 		};
 
 		self.startTweeting = function () {
-			var doTweet = function () {
-				var text = brain.getTweetText();
-				client.post( 'statuses/update', {
-					status: text
-				}, self.errorHandle );
-			};
+			self.sendTweet();
+			setInterval( self.sendTweet, config.tweet.span );
+		};
 
-			doTweet();
-			setInterval( doTweet, config.tweet.span );
+		self.sendTweet = function () {
+			var text = brain.getTweetText();
+			client.post( 'statuses/update', {
+				status: text
+			}, self.errorHandle );
 		};
 
 		self.start = function () {
-			var launch = function () {
-				client.get( 'account/settings', {}, function ( error, settings ) {
-					self.settings = settings;
-					self.startStreaming();
-					self.startTweeting();
-				} );
-			};
-
 			if ( !brain.loadFromDump ) {
 				self.initialize( function ( error ) {
 					console.log("@error:", error);
-					launch();
+					self._start();
 				} );
 			} else {
-				launch();
+				self._start();
 			}
+		};
+
+		self._start = function () {
+			client.get( 'account/settings', {}, function ( error, settings ) {
+				self.settings = settings;
+				self.startStreaming();
+				self.startTweeting();
+			} );
 		};
 	};
 }() );
