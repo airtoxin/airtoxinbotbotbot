@@ -7,7 +7,6 @@ var Twitter = require( 'twitter' );
 var Brain = require( './libs/brain' );
 var Tweet = require( './libs/tweet' );
 var NLP = require( './libs/nlp' );
-var EventEmitter2 = require( 'eventemitter2' ).EventEmitter2;
 
 var Bot = ( function () {
 	return function () {
@@ -30,7 +29,11 @@ var Bot = ( function () {
 			client.stream( 'user', {}, function ( stream ) {
 				stream.on( 'data', function ( tw ) {
 					if ( !tw.id ) return;
-					self.emit( 'stream', new Tweet( tw ) );
+
+					var tweet = new Tweet( tw );
+					self.watchLearn( tweet );
+					self.watchReply( tweet );
+					self.watchFavorite( tweet );
 				} ).on( 'error', self.errorHandle );
 			} );
 		};
@@ -42,7 +45,6 @@ var Bot = ( function () {
 				self.sendReply( tweet );
 			}, _.random( config.reply.min_time, config.reply.max_time ) );
 		};
-		self.on( 'stream', self.watchReply );
 
 		self.sendReply = function ( tweet ) {
 			var reply = '@' + tweet.getUserScreenName() + ' ' + brain.getReplyText();
@@ -62,7 +64,6 @@ var Bot = ( function () {
 				self.createFavorite( tweet )
 			}, _.random( config.bot.favorite.min_time, config.bot.favorite.max_time ) );
 		};
-		self.on( 'stream', self.watchFavorite );
 
 		self.createFavorite = function ( tweet ) {
 			client.post( 'favorites/create', {
@@ -75,7 +76,6 @@ var Bot = ( function () {
 			if ( !_.includes( config.bot.teachers, tweet.getUserScreenName() ) ) { return; }
 			brain.learn( tweet );
 		};
-		self.on( 'stream', self.watchLearn );
 
 		self.initialize = function ( callback ) {
 			async.each( config.bot.teachers, function ( teacher, nextTeacher ) {
@@ -132,8 +132,6 @@ var Bot = ( function () {
 		};
 	};
 }() );
-
-util.inherits( Bot, EventEmitter2 );
 
 var bot = new Bot();
 bot.start();
