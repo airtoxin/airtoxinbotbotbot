@@ -1,6 +1,6 @@
 var _ = require( 'lodash' );
 var fs = require( 'fs' );
-var util = require( 'util' );
+var path = require( 'path' );
 var config = require( 'config' );
 var Markov = require( 'markoff' );
 var NLP = require( './nlp' );
@@ -9,7 +9,7 @@ var Brain = ( function () {
 	return function () {
 		var self = this;
 
-		var dumpFilePath = '../dump.json';
+		var dumpFilePath = path.join( __dirname, '..', 'dump.json' );
 
 		var markov = new Markov();
 		var nlp = new NLP();
