@@ -33,7 +33,7 @@ var Bot = ( function () {
 			self.keywords = nlp.getKeywords( text );
 		} );
 
-		self.watchStream = function () {
+		self.startStreaming = function () {
 			client.stream( 'user', {}, function ( stream ) {
 				stream.on( 'data', function ( tw ) {
 					if ( !tw.id ) return;
@@ -156,7 +156,7 @@ var Bot = ( function () {
 			var launch = function () {
 				client.get( 'account/settings', {}, function ( error, settings ) {
 					self.settings = settings;
-					self.watchStream();
+					self.startStreaming();
 					self.startTweeting();
 				} );
 			};
