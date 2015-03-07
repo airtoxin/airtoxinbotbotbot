@@ -1,19 +1,15 @@
 var _ = require( 'lodash' );
-var fs = require( 'fs' );
-var util = require( 'util' );
 var config = require( 'config' );
 var async = require( 'neo-async' );
 var Twitter = require( 'twitter' );
 var Brain = require( './libs/brain' );
 var Tweet = require( './libs/tweet' );
-var NLP = require( './libs/nlp' );
 
 var Bot = ( function () {
 	return function () {
 		var self = this;
 
 		var brain = new Brain();
-		var nlp = new NLP();
 
 		var client = new Twitter( {
 			consumer_key: config.auth.consumer_key,
