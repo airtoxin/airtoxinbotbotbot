@@ -18,7 +18,7 @@ var Bot = ( function () {
 			access_token_secret: config.auth.access_token_secret
 		} );
 
-		self.errorHandle = function ( error ) { if ( error ) { console.log("@error:", error); } };
+		self.errorHandler = function ( error ) { if ( error ) { console.log("@error:", error); } };
 		self.nope = function () {};
 
 		self.startStreaming = function () {
@@ -30,7 +30,7 @@ var Bot = ( function () {
 					self.watchLearn( tweet );
 					self.watchReply( tweet );
 					self.watchFavorite( tweet );
-				} ).on( 'error', self.errorHandle );
+				} ).on( 'error', self.errorHandler );
 			} );
 		};
 
@@ -49,7 +49,7 @@ var Bot = ( function () {
 			client.post( 'statuses/update', {
 				status: reply,
 				in_reply_to_status_id: tweet.getID()
-			}, self.errorHandle );
+			}, self.errorHandler );
 		};
 
 		self.watchFavorite = function ( tweet ) {
@@ -65,7 +65,7 @@ var Bot = ( function () {
 			client.post( 'favorites/create', {
 				id: tweet.getID(),
 				include_entities: false
-			}, self.errorHandle );
+			}, self.errorHandler );
 		};
 
 		self.watchLearn = function ( tweet ) {
@@ -105,7 +105,7 @@ var Bot = ( function () {
 			var text = brain.getTweetText();
 			client.post( 'statuses/update', {
 				status: text
-			}, self.errorHandle );
+			}, self.errorHandler );
 		};
 
 		self.start = function () {
