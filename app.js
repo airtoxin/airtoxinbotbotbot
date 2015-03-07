@@ -4,8 +4,7 @@ var util = require( 'util' );
 var config = require( 'config' );
 var async = require( 'neo-async' );
 var Twitter = require( 'twitter' );
-var Mecab = require( 'mecab-async' );
-var Markov = require( 'markoff' );
+var Brain = require( './libs/brain' );
 var Tweet = require( './libs/tweet' );
 var NLP = require( './libs/nlp' );
 var EventEmitter2 = require( 'eventemitter2' ).EventEmitter2;
@@ -14,8 +13,7 @@ var Bot = ( function () {
 	return function () {
 		var self = this;
 
-		var mecab = new Mecab();
-		var markov = new Markov();
+		var brain = new Brain();
 		var nlp = new NLP();
 
 		var client = new Twitter( {
@@ -27,11 +25,6 @@ var Bot = ( function () {
 
 		self.errorHandle = function ( error ) { if ( error ) { console.log("@error:", error); } };
 		self.nope = function () {};
-
-		self.keywords = [];
-		self.on( 'tweet', function ( text ) {
-			self.keywords = nlp.getKeywords( text );
-		} );
 
 		self.startStreaming = function () {
 			client.stream( 'user', {}, function ( stream ) {
@@ -52,7 +45,7 @@ var Bot = ( function () {
 		self.on( 'stream', self.watchReply );
 
 		self.sendReply = function ( tweet ) {
-			var reply = '@' + tweet.getUserScreenName() + ' ' + self.getTweetText();
+			var reply = '@' + tweet.getUserScreenName() + ' ' + brain.getReplyText();
 			reply = reply.slice( 0, 140 );
 
 			client.post( 'statuses/update', {
@@ -62,13 +55,8 @@ var Bot = ( function () {
 		};
 
 		self.watchFavorite = function ( tweet ) {
-			if ( tweet.getUserScreenName() === self.settings.screen_name ) return;
-			var keywords = nlp.getKeywords( tweet.getFlatText() );
-
-			var isFavorite = _.some( _.map( keywords, function ( keyword ) {
-				return _.includes( _.union( config.bot.favorite.always_favorites, self.keywords ), keyword );
-			} ) );
-			if ( !isFavorite ) { return; }
+			if ( tweet.getUserScreenName() === self.settings.screen_name ) { return; }
+			if ( !brain.isFavoriteText( tweet.getFlatText() ) ) { return; }
 
 			setTimeout( function () {
 				self.createFavorite( tweet )
@@ -85,26 +73,16 @@ var Bot = ( function () {
 
 		self.watchLearn = function ( tweet ) {
 			if ( !_.includes( config.bot.teachers, tweet.getUserScreenName() ) ) { return; }
-			self.learn( tweet, self.save );
+			brain.learn( tweet );
 		};
 		self.on( 'stream', self.watchLearn );
 
-		self.learn = function ( tweet, callback ) {
-			var text = tweet.getFlatText();
-			markov.addTokens( nlp.tokenize( text ) );
-			callback();
-		};
-
-		self.getTweetText = function () {
-			return self.join( markov.chain( config.markov.chain_length ) );
-		};
-
-		self.initialize = function ( users, callback ) {
-			async.each( users, function ( user, nextUser ) {
+		self.initialize = function ( callback ) {
+			async.each( config.bot.teachers, function ( teacher, nextTeacher ) {
 				var sinceID = null;
 				async.eachSeries( _.range( 1, 11 ), function ( i, nextIndex ) {
 					var options = {
-						screen_name: user,
+						screen_name: teacher,
 						count: 200,
 						exclude_replies: true,
 						include_rts: false
@@ -114,43 +92,24 @@ var Bot = ( function () {
 						if ( error ) return nextIndex( error );
 						sinceID = ( new Tweet( tweets[ tweets.length - 1 ] ) ).getID();
 						async.each( tweets, function ( tw, nextTw ) {
-							self.learn( new Tweet( tw ), nextTw );
+							brain.learn( new Tweet( tw ) );
+							nextTw();
 						}, nextIndex );
 					} );
-				}, nextUser );
+				}, nextTeacher );
 			}, callback );
 		};
 
 		self.startTweeting = function () {
 			var doTweet = function () {
-				var text = self.getTweetText();
+				var text = brain.getTweetText();
 				client.post( 'statuses/update', {
 					status: text
 				}, self.errorHandle );
-				self.emit( 'tweet', text );
 			};
 
 			doTweet();
 			setInterval( doTweet, config.tweet.span );
-		};
-
-		self.save = function () {
-			var serial = markov.save();
-			fs.writeFile( './dump.json', JSON.stringify( serial ), { flag: 'w+' }, self.errorHandle );
-		};
-
-		self.load = function ( callback ) {
-			fs.readFile( './dump.json', function ( error, serial ) {
-				markov.load( JSON.parse( serial ) );
-				callback();
-			} );
-		};
-
-		self.join = function ( chains ) {
-			return _.reduce( chains, function ( text, chain ) {
-				if ( text.match( /[a-zA-Z]$/ ) && chain.match( /^[a-zA-Z]/ ) ) { return text + ' ' + chain; }
-				return text + chain;
-			}, '' );
 		};
 
 		self.start = function () {
@@ -162,14 +121,13 @@ var Bot = ( function () {
 				} );
 			};
 
-			if ( fs.existsSync( './dump.json' ) ) {
-				self.load( launch );
-			} else {
-				self.initialize( config.bot.teachers, function ( error ) {
-					self.errorHandle( error );
-					self.save();
+			if ( !brain.loadFromDump ) {
+				self.initialize( function ( error ) {
+					console.log("@error:", error);
 					launch();
 				} );
+			} else {
+				launch();
 			}
 		};
 	};
