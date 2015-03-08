@@ -6,6 +6,7 @@ var Brain = require( './libs/brain' );
 var Tweet = require( './libs/tweet' );
 var DM = require( './libs/dm' );
 var Friends = require( './libs/friends' );
+var FavoriteEvent = require( './libs/favorite_event' );
 
 var Bot = ( function () {
 	return function () {
@@ -29,6 +30,10 @@ var Bot = ( function () {
 					self._streamDataFactory( streamData, function ( data, process ) {
 						process( data );
 					} );
+				} ).on( 'favorite', function ( streamData ) {
+					self._streamDataFactory( streamData, function ( data, process ) {
+						process( data );
+					} );
 				} ).on( 'error', self.errorHandler );
 			} );
 		};
@@ -37,23 +42,31 @@ var Bot = ( function () {
 			var transform;
 			var process = self.noop;
 
+			// DM Data
 			if ( !_.isEmpty( streamData.direct_message ) ) {
 				transform = new DM( streamData );
 				process = function ( dm ) {
 					self.watchEmergencyShutdown( dm );
 				};
 			}
-
+			// Friends Data
 			if ( !_.isEmpty( streamData.friends ) ) {
 				transform = new Friends( streamData );
 			}
-
+			// Tweet Data
 			if ( !_.isEmpty( streamData.id ) ) {
 				transform = new Tweet( streamData );
 				process = function ( tweet ) {
-					self.watchLearn( wrapper );
-					self.watchReply( wrapper );
-					self.watchFavorite( wrapper );
+					self.watchLearn( tweet );
+					self.watchReply( tweet );
+					self.watchFavorite( tweet );
+				};
+			}
+			// Favorite Event
+			if ( streamData.event === 'favorite' ) {
+				transform = new FavoriteEvent( streamData );
+				process = function ( favoriteEvent ) {
+					self.watchFavoriteEvent( favoriteEvent );
 				};
 			}
 
@@ -102,6 +115,10 @@ var Bot = ( function () {
 				id: tweet.getID(),
 				include_entities: false
 			}, self.errorHandler );
+		};
+
+		self.watchFavoriteEvent = function ( favoriteEvent ) {
+			console.log("@favoriteEvent.getDoerName():", favoriteEvent.getDoerName());
 		};
 
 		self.watchLearn = function ( tweet ) {
