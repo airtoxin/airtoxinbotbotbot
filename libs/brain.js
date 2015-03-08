@@ -12,6 +12,8 @@ var Brain = ( function () {
 	return function () {
 		var self = this;
 
+		var favoritedCache = cache.namespace( 'favorited' );
+
 		var dumpFilePath = path.join( __dirname, '..', 'dump.json' );
 
 		var markov = new Markov();
@@ -52,13 +54,13 @@ var Brain = ( function () {
 
 		self.memorizeFavorited = function ( favoriteEvent ) {
 			var key = favoriteEvent.getDoerScreenName();
-			var prevVal = cache.get( key );
+			var prevVal = favoritedCache.get( key );
 			var val = {
 				name: favoriteEvent.getDoerName(),
 				count: prevVal ? prevVal.count + 1 : 1
 			};
 
-			cache.set( key, val, config.favorite_event.span ); // 10 sec
+			favoritedCache.set( key, val, config.favorite_event.span ); // 10 sec
 			if ( val.count % config.favorite_event.burst_threshold === 0 ) { self.emit( 'burst:favorited', val.name, val.count ) }
 		};
 
