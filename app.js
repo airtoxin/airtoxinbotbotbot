@@ -4,6 +4,8 @@ var async = require( 'neo-async' );
 var Twitter = require( 'twitter' );
 var Brain = require( './libs/brain' );
 var Tweet = require( './libs/tweet' );
+var DM = require( './libs/dm' );
+var Friends = require( './libs/friends' );
 
 var Bot = ( function () {
 	return function () {
@@ -19,19 +21,53 @@ var Bot = ( function () {
 		} );
 
 		self.errorHandler = function ( error ) { if ( error ) { console.log("@error:", error); } };
-		self.nope = function () {};
+		self.noop = function () {};
 
 		self.startStreaming = function () {
 			client.stream( 'user', {}, function ( stream ) {
-				stream.on( 'data', function ( tw ) {
-					if ( !tw.id ) return;
-
-					var tweet = new Tweet( tw );
-					self.watchLearn( tweet );
-					self.watchReply( tweet );
-					self.watchFavorite( tweet );
+				stream.on( 'data', function ( streamData ) {
+					self._streamDataFactory( streamData, function ( data, process ) {
+						process( data );
+					} );
 				} ).on( 'error', self.errorHandler );
 			} );
+		};
+
+		self._streamDataFactory = function ( streamData, callback ) {
+			var transform;
+			var process = self.noop;
+
+			if ( !_.isEmpty( streamData.direct_message ) ) {
+				transform = new DM( streamData );
+				process = function ( dm ) {
+					self.watchEmergencyShutdown( dm );
+				};
+			}
+
+			if ( !_.isEmpty( streamData.friends ) ) {
+				transform = new Friends( streamData );
+			}
+
+			if ( !_.isEmpty( streamData.id ) ) {
+				transform = new Tweet( streamData );
+				process = function ( tweet ) {
+					self.watchLearn( wrapper );
+					self.watchReply( wrapper );
+					self.watchFavorite( wrapper );
+				};
+			}
+
+			callback( transform, process );
+		};
+
+		self.watchEmergencyShutdown = function ( dm ) {
+			if ( dm.getSenderScreenName() !== config.bot.admin ) return;
+			if ( dm.getText().indexOf( config.bot.emergency_shutdown_password ) !== 0 ) return;
+			self.emergencyShutdown();
+		};
+
+		self.emergencyShutdown = function () {
+			process.exit( 1 );
 		};
 
 		self.watchReply = function ( tweet ) {

@@ -6,12 +6,14 @@
 		"access_token_secret": "XXXXXXXXXXXXXXXXXXXX"
 	},
 	"bot": {
+		"admin": "XXXXXXXXXXXXXXXXXXXX",
 		"teachers": [], // teachers account
 		"favorite": {
 			"always_favorites": [],
 			"min_time": 500,
 			"max_time": 5000
-		}
+		},
+		"emergency_shutdown_password": "XXXXXXXXXXXXXXXXXXXX"
 	},
 	"reply": {
 		"min_time": 3000,
