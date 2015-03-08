@@ -1,9 +1,12 @@
 var _ = require( 'lodash' );
 var fs = require( 'fs' );
+var util = require( 'util' );
 var path = require( 'path' );
 var config = require( 'config' );
+var cache = require( 'expire-cache' );
 var Markov = require( 'markoff' );
 var NLP = require( './nlp' );
+var EventEmitter2 = require( 'eventemitter2' ).EventEmitter2;
 
 var Brain = ( function () {
 	return function () {
@@ -45,10 +48,18 @@ var Brain = ( function () {
 			return _.some( _.map( keywords, function ( keyword ) {
 				return text.indexOf( keyword ) >= 0;
 			} ) );
-			// var keywords = nlp.getKeywords( text );
-			// return _.some( _.map( keywords, function ( keyword ) {
-			//	return _.includes( _.union( config.bot.favorite.always_favorites, brain.keywords ), keyword );
-			// } ) );
+		};
+
+		self.memorizeFavorited = function ( favoriteEvent ) {
+			var key = favoriteEvent.getDoerScreenName();
+			var prevVal = cache.get( key );
+			var val = {
+				name: favoriteEvent.getDoerName(),
+				count: prevVal ? prevVal.count + 1 : 1
+			};
+
+			cache.set( key, val, config.favorite_event.span ); // 10 sec
+			if ( val.count % config.favorite_event.burst_threshold === 0 ) { self.emit( 'burst:favorited', val.name, val.count ) }
 		};
 
 		self._save = function () {
@@ -64,5 +75,7 @@ var Brain = ( function () {
 		};
 	};
 }() );
+
+util.inherits( Brain, EventEmitter2 );
 
 module.exports = Brain;

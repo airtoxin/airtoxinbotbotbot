@@ -15,6 +15,10 @@
 		},
 		"emergency_shutdown_password": "XXXXXXXXXXXXXXXXXXXX"
 	},
+	"favorite_event": {
+		"span": 10, // 10 sec
+		"burst_threshold": 5
+	},
 	"reply": {
 		"min_time": 3000,
 		"max_time": 10000

@@ -118,8 +118,15 @@ var Bot = ( function () {
 		};
 
 		self.watchFavoriteEvent = function ( favoriteEvent ) {
-			console.log("@favoriteEvent.getDoerName():", favoriteEvent.getDoerName());
+			brain.memorizeFavorited( favoriteEvent );
 		};
+
+		brain.on( 'burst:favorited', function ( userName, count ) {
+			var tweetText = userName + _.reduce( _.range( count / config.favorite_event.burst_threshold ), function ( text, i ) {
+				return text + '…';
+			},'' )
+			self.sendTweet( tweetText );
+		} );
 
 		self.watchLearn = function ( tweet ) {
 			if ( !_.includes( config.bot.teachers, tweet.getUserScreenName() ) ) { return; }
@@ -154,8 +161,8 @@ var Bot = ( function () {
 			setInterval( self.sendTweet, config.tweet.span );
 		};
 
-		self.sendTweet = function () {
-			var text = brain.getTweetText();
+		self.sendTweet = function ( text ) {
+			text = text || brain.getTweetText();
 			client.post( 'statuses/update', {
 				status: text
 			}, self.errorHandler );
