@@ -54,7 +54,7 @@ var Bot = ( function () {
 				transform = new Friends( streamData );
 			}
 			// Tweet Data
-			if ( !_.isEmpty( streamData.id ) ) {
+			if ( streamData.id ) {
 				transform = new Tweet( streamData );
 				process = function ( tweet ) {
 					self.watchLearn( tweet );
