@@ -47,6 +47,10 @@ var Tweet = ( function () {
 			return self.tweet.user.screen_name;
 		};
 
+		self.getUserName = function () {
+			return self.tweet.user.name;
+		};
+
 		self.getID = function () {
 			return self.tweet.id_str;
 		};

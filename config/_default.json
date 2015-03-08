@@ -21,7 +21,9 @@
 	},
 	"reply": {
 		"min_time": 3000,
-		"max_time": 10000
+		"max_time": 10000,
+		"cache_span": 60, // 1 min
+		"burst_threshold": 10
 	},
 	"markov": {
 		"chain_length": 20

@@ -13,6 +13,7 @@ var Brain = ( function () {
 		var self = this;
 
 		var favoritedCache = cache.namespace( 'favorited' );
+		var replyedCache = cache.namespace( 'replyed' );
 
 		var dumpFilePath = path.join( __dirname, '..', 'dump.json' );
 
@@ -60,8 +61,20 @@ var Brain = ( function () {
 				count: prevVal ? prevVal.count + 1 : 1
 			};
 
-			favoritedCache.set( key, val, config.favorite_event.span ); // 10 sec
-			if ( val.count % config.favorite_event.burst_threshold === 0 ) { self.emit( 'burst:favorited', val.name, val.count ) }
+			favoritedCache.set( key, val, config.favorite_event.span );
+			if ( val.count % config.favorite_event.burst_threshold === 0 ) { self.emit( 'burst:favorited', val.name, val.count ); }
+		};
+
+		self.memorizeReplyed = function ( tweet ) {
+			var key = tweet.getUserScreenName();
+			var prevVal = replyedCache.get( key );
+			var val = {
+				name: tweet.getUserName(),
+				count: prevVal ? prevVal.count + 1 : 1
+			};
+
+			replyedCache.set( key, val, config.reply.cache_span );
+			if ( val.count % config.reply.burst_threshold === 0 ) { self.emit( 'burst:replyed', val.name, val.count ); }
 		};
 
 		self._save = function () {

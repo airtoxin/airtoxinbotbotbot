@@ -86,9 +86,18 @@ var Bot = ( function () {
 		self.watchReply = function ( tweet ) {
 			if ( !_.includes( tweet.getMentions(), self.settings.screen_name ) ) return;
 
-			setTimeout( function () {
+			brain.memorizeReplyed( tweet );
+			var timeout = setTimeout( function () {
 				self.sendReply( tweet );
 			}, _.random( config.reply.min_time, config.reply.max_time ) );
+
+			brain.on( 'burst:replyed', function ( userName, count ) {
+				clearTimeout( timeout );
+				if ( count > config.reply.burst_threshold ) return;
+
+				var burstText = userName + 'さんが僕のこと好きすぎます…';
+				self.sendTweet( burstText );
+			} );
 		};
 
 		self.sendReply = function ( tweet ) {
