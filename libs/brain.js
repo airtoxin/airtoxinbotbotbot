@@ -17,7 +17,7 @@ var Brain = ( function () {
 
 		var dumpFilePath = path.join( __dirname, '..', 'dump.json' );
 
-		var markov = new Markov();
+		var markov = new Markov( { stateSize: 2 } );
 		var nlp = new NLP();
 
 		self.loadFromDump = false;

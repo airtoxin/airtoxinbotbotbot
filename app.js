@@ -145,7 +145,7 @@ var Bot = ( function () {
 		self.initialize = function ( callback ) {
 			async.each( config.bot.teachers, function ( teacher, nextTeacher ) {
 				var sinceID = null;
-				async.eachSeries( _.range( 1, 11 ), function ( i, nextIndex ) {
+				async.eachSeries( _.range( 1, 51 ), function ( i, nextIndex ) {
 					var options = {
 						screen_name: teacher,
 						count: 200,
