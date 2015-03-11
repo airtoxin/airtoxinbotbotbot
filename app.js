@@ -180,7 +180,7 @@ var Bot = ( function () {
 		self.start = function () {
 			if ( !brain.loadFromDump ) {
 				self.initialize( function ( error ) {
-					console.log("@error:", error);
+					self.errorHandler( error );
 					self._start();
 				} );
 			} else {
