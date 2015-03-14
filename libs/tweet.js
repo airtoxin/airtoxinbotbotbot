@@ -54,6 +54,10 @@ var Tweet = ( function () {
 		self.getID = function () {
 			return self.tweet.id_str;
 		};
+
+		self.isRetweet = function () {
+			return !!self.tweet.retweeted_status;
+		};
 	};
 }() );
 

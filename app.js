@@ -84,6 +84,7 @@ var Bot = ( function () {
 		};
 
 		self.watchReply = function ( tweet ) {
+			if ( tweet.isRetweet() ) return;
 			if ( !_.includes( tweet.getMentions(), self.settings.screen_name ) ) return;
 
 			brain.memorizeReplyed( tweet );
