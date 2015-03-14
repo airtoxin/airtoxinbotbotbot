@@ -145,7 +145,7 @@ var Bot = ( function () {
 
 		self.initialize = function ( callback ) {
 			async.each( config.bot.teachers, function ( teacher, nextTeacher ) {
-				var sinceID = null;
+				var maxID = null;
 				async.eachSeries( _.range( 1, 51 ), function ( i, nextIndex ) {
 					var options = {
 						screen_name: teacher,
@@ -153,10 +153,10 @@ var Bot = ( function () {
 						exclude_replies: true,
 						include_rts: false
 					};
-					if ( sinceID ) options.since_id = sinceID;
+					if ( maxID ) options.max_id = maxID;
 					client.get( 'statuses/user_timeline', options, function ( error, tweets ) {
 						if ( error ) return nextIndex( error );
-						sinceID = ( new Tweet( tweets[ tweets.length - 1 ] ) ).getID();
+						maxID = ( new Tweet( tweets[ tweets.length - 1 ] ) ).getID();
 						async.each( tweets, function ( tw, nextTw ) {
 							brain.learn( new Tweet( tw ) );
 							nextTw();
