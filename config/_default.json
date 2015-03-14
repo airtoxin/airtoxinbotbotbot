@@ -30,5 +30,8 @@
 	},
 	"tweet": {
 		"span": 900000 // 15 min
+	},
+	"mecab": {
+		"dict_path": ""
 	}
 }
