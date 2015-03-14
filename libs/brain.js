@@ -22,7 +22,7 @@ var Brain = ( function () {
 
 		self.loadFromDump = false;
 		self.keywords = [];
-		self._errorHandle = function ( error ) { console.log("@error:", error); };
+		self._errorHandle = function ( error ) { if ( error ) { console.log("@error:", error); } };
 
 		if ( fs.existsSync( dumpFilePath ) ) {
 			var dump = require( dumpFilePath );
