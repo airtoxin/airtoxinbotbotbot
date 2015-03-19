@@ -94,7 +94,6 @@ var Bot = ( function () {
 		};
 
 		brain.on( 'burst:replyed', function ( userName, count ) {
-			clearTimeout( timeout );
 			if ( count > config.reply.burst_threshold ) return;
 
 			var burstText = userName + 'さんが僕のこと好きすぎます…';
