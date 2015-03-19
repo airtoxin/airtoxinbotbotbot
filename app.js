@@ -91,15 +91,15 @@ var Bot = ( function () {
 			var timeout = setTimeout( function () {
 				self.sendReply( tweet );
 			}, _.random( config.reply.min_time, config.reply.max_time ) );
-
-			brain.on( 'burst:replyed', function ( userName, count ) {
-				clearTimeout( timeout );
-				if ( count > config.reply.burst_threshold ) return;
-
-				var burstText = userName + 'さんが僕のこと好きすぎます…';
-				self.sendTweet( burstText );
-			} );
 		};
+
+		brain.on( 'burst:replyed', function ( userName, count ) {
+			clearTimeout( timeout );
+			if ( count > config.reply.burst_threshold ) return;
+
+			var burstText = userName + 'さんが僕のこと好きすぎます…';
+			self.sendTweet( burstText );
+		} );
 
 		self.sendReply = function ( tweet ) {
 			var reply = '@' + tweet.getUserScreenName() + ' ' + brain.getReplyText();
