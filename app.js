@@ -144,7 +144,8 @@ var Bot = ( function () {
 		};
 
 		brain.on( 'burst:favorited', function ( userName, count ) {
-			var tweetText = userName + _.reduce( _.range( count / config.favorite_event.burst_threshold ), function ( text, i ) {
+			if ( count % config.favorite_event.burst_threshold !== 0 ) { return; }
+			var tweetText = userName + _.reduce( _.range( count ), function ( text, i ) {
 				return text + '…';
 			},'' )
 

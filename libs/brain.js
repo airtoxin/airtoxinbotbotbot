@@ -72,7 +72,7 @@ var Brain = ( function () {
 			};
 
 			favoritedCache.set( key, val, config.favorite_event.span );
-			if ( val.count % config.favorite_event.burst_threshold === 0 ) { self.emit( 'burst:favorited', val.name, val.count ); }
+			if ( val.count >= config.favorite_event.burst_threshold ) { self.emit( 'burst:favorited', val.name, val.count ); }
 		};
 
 		self.memorizeReplyed = function ( tweet ) {
@@ -84,7 +84,7 @@ var Brain = ( function () {
 			};
 
 			replyedCache.set( key, val, config.reply.cache_span );
-			if ( val.count % config.reply.burst_threshold === 0 ) { self.emit( 'burst:replyed', val.name, val.count ); }
+			if ( val.count >= config.reply.burst_threshold ) { self.emit( 'burst:replyed', val.name, val.count ); }
 		};
 
 		self._save = function () {
