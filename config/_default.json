@@ -15,9 +15,17 @@
 		},
 		"emergency_shutdown_password": "XXXXXXXXXXXXXXXXXXXX"
 	},
+	"tweet": {
+		"cache_span": 60, // 1 min
+		"burst_threshold": 2,
+		"min_time": 2000, // 2 sec
+		"max_time": 10000 // 10 sec
+	},
 	"favorite_event": {
 		"span": 10, // 10 sec
-		"burst_threshold": 5
+		"burst_threshold": 5,
+		"min_time": 4000, // 4 sec
+		"max_time": 8000 // 8 sec
 	},
 	"reply": {
 		"min_time": 3000,

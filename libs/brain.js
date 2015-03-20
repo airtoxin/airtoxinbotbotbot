@@ -12,6 +12,7 @@ var Brain = ( function () {
 	return function () {
 		var self = this;
 
+		var tweetCache = cache.namespace( 'tweet' );
 		var favoritedCache = cache.namespace( 'favorited' );
 		var replyedCache = cache.namespace( 'replyed' );
 
@@ -51,6 +52,15 @@ var Brain = ( function () {
 			return _.some( _.map( keywords, function ( keyword ) {
 				return text.indexOf( keyword ) >= 0;
 			} ) );
+		};
+
+		self.memorizeTweet = function ( tweet ) {
+			var key = tweet.getFlatText();
+			var prevCount = favoritedCache.get( key );
+			var count = ~~prevCount + 1;
+
+			tweetCache.set( key, count, config.tweet.cache_span );
+			if ( count >= config.tweet.burst_threshold ) { self.emit( 'burst:tweet', key, count ); }
 		};
 
 		self.memorizeFavorited = function ( favoriteEvent ) {

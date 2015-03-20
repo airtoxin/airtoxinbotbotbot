@@ -57,7 +57,7 @@ var Bot = ( function () {
 			if ( streamData.id ) {
 				transform = new Tweet( streamData );
 				process = function ( tweet ) {
-					self.watchLearn( tweet );
+					self.watchCommonTweet( tweet );
 					self.watchReply( tweet );
 					self.watchFavorite( tweet );
 				};
@@ -82,6 +82,19 @@ var Bot = ( function () {
 		self.emergencyShutdown = function () {
 			process.exit( 1 );
 		};
+
+		self.watchCommonTweet = function ( tweet ) {
+			self.learn( tweet );
+			brain.memorizeTweet( tweet );
+		};
+
+		brain.on( 'burst:tweet', function ( text, count ) {
+			if ( count > config.tweet.burst_threshold ) return;
+
+			setTimeout( function () {
+				self.sendTweet( text );
+			}, _.random( config.tweet.min_time, config.tweet.max_time ) );
+		} );
 
 		self.watchReply = function ( tweet ) {
 			if ( tweet.isRetweet() ) return;
@@ -134,10 +147,13 @@ var Bot = ( function () {
 			var tweetText = userName + _.reduce( _.range( count / config.favorite_event.burst_threshold ), function ( text, i ) {
 				return text + '…';
 			},'' )
-			self.sendTweet( tweetText );
+
+			setTimeout( function () {
+				self.sendTweet( tweetText );
+			}, _.random( config.favorite_event.min_time, config.favorite_event.max_time ) );
 		} );
 
-		self.watchLearn = function ( tweet ) {
+		self.learn = function ( tweet ) {
 			if ( !_.includes( config.bot.teachers, tweet.getUserScreenName() ) ) { return; }
 			brain.learn( tweet );
 		};
