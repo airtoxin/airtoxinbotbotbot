@@ -39,6 +39,7 @@ var Brain = ( function () {
 
 		self.getTweetText = function () {
 			var text = self._join( markov.chain( config.markov.chain_length ) );
+			text = text.replace( /EOS/g, '\n' );
 			self.keywords = nlp.getKeywords( text );
 			return text;
 		};
