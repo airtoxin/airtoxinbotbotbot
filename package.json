@@ -4,6 +4,7 @@
   "description": "airtoxinbotbotbot",
   "main": "app.js",
   "scripts": {
+    "fmt": "prettier src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "airtoxin <airtoxin@icloud.com>",
@@ -19,5 +20,8 @@
     "neo-async": "^0.6.2",
     "sandglass": "^1.0.0",
     "twitter": "^1.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^1.8.2"
   }
 }
