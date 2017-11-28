@@ -1,17 +1,17 @@
-var FavoriteEvent = ( function () {
-  return function ( favoriteEventObj ) {
+var FavoriteEvent = (function() {
+  return function(favoriteEventObj) {
     var self = this;
 
     self.favoriteEvent = favoriteEventObj;
 
-    self.getDoerScreenName = function () {
+    self.getDoerScreenName = function() {
       return self.favoriteEvent.source.screen_name;
     };
 
-    self.getDoerName = function () {
+    self.getDoerName = function() {
       return self.favoriteEvent.source.name;
     };
   };
-}() );
+})();
 
 module.exports = FavoriteEvent;

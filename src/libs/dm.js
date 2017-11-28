@@ -1,17 +1,17 @@
-var DM = ( function () {
-  return function ( dmObj ) {
+var DM = (function() {
+  return function(dmObj) {
     var self = this;
 
     self.dm = dmObj;
 
-    self.getSenderScreenName = function () {
+    self.getSenderScreenName = function() {
       return self.dm.direct_message.sender.screen_name;
     };
 
-    self.getText = function () {
+    self.getText = function() {
       return self.dm.direct_message.text;
     };
   };
-}() );
+})();
 
 module.exports = DM;
